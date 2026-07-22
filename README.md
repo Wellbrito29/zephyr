@@ -74,25 +74,28 @@ runtime. Point it at a local Metro server instead by setting
 
 ## Try the OTA loop
 
-Update the remote and watch the host pick it up **without a native rebuild**:
+The host points at the MiniApp **`development` environment's stable edge URL**
+(`apps/HostApp/metro.config.js`), which tracks the latest iOS deploy. So the
+config never changes — updating the remote is a three-step loop:
 
 ```bash
 # 1. edit apps/MiniApp/src/example.tsx (change the text)
 
-# 2. redeploy the remote — note the new edge URL it prints
+# 2. redeploy the remote (the environment auto-updates to this version)
 cd apps/MiniApp
 npx react-native bundle-mf-remote --platform ios --dev false
 
-# 3. point the host at the new URL and reload
-cd ../HostApp
-MINI_APP_URL="MiniApp@<NEW_URL>/mf-manifest.json" \
-  npx react-native start --port 8081 --reset-cache
-# reload the app on the simulator → the card shows the new version
+# 3. reload the app on the simulator (Cmd+R) → the card shows the new version
 ```
 
-For hands-off "always latest" resolution, create an **environment** for MiniApp
-in the Zephyr dashboard and use `"zephyr:dependencies": { "MiniApp": "MiniApp@*" }`
-in `apps/HostApp/package.json` (see `docs/feedback.md`, finding #7).
+No URL swap, no native rebuild — the JS remote is delivered over-the-air by
+Zephyr Cloud.
+
+**Setup done once (in the Zephyr dashboard):** create an environment named
+`development` for the MiniApp application with channel `Tag` →
+`ios_latest_well334`, marked as the default environment. `zephyr:dependencies`
+in `apps/HostApp/package.json` is the production-build equivalent (resolved at
+build time). See `docs/feedback.md`, finding #7, for why this step is needed.
 
 ## Notes
 
