@@ -77,6 +77,24 @@ I ended up pointing the host at the returned edge manifest URL directly to prove
 OTA. **Suggestion:** show the "deploy remote → reference it from the host by
 tag" round-trip explicitly.
 
+### 7. Automatic "latest" resolution silently no-ops without an environment
+Each deploy returns an **immutable, version-hashed** edge URL
+(`…-5-miniapp-…-a1c9fa373-ze.zephyrcloud.app`) — there's no stable
+`latest`/branch alias that a host can point at (I probed the obvious ones; all
+404). The intended fix is `"zephyr:dependencies": { "MiniApp": "MiniApp@*" }`,
+but with no environment created for the app, the wildcard **doesn't resolve and
+doesn't warn** — the host just silently falls back to the static remote in
+`metro.config.js` (I only noticed because the UI kept showing the old version).
+The docs do state "applications must have at least one environment to be
+resolvable", but that requirement is easy to miss and there's no build/runtime
+signal when it isn't met. **Suggestion:** emit a clear warning when a
+`zephyr:dependencies` selector fails to resolve, and make the "create an
+environment first" step part of the Metro tutorial's happy path.
+
+Manual proof of the OTA loop (edit remote → redeploy → point host at the new
+edge URL → reload) worked perfectly and is genuinely fast — the gap is only in
+the *automatic* resolution ergonomics.
+
 ## One-line summary
 
 The core product is impressive — sub-second edge deploys and a clean Metro

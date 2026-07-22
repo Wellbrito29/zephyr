@@ -72,6 +72,28 @@ The host boots on the simulator and loads the MiniApp card from Zephyr's edge at
 runtime. Point it at a local Metro server instead by setting
 `MINI_APP_URL="MiniApp@http://localhost:8082/mf-manifest.json"`.
 
+## Try the OTA loop
+
+Update the remote and watch the host pick it up **without a native rebuild**:
+
+```bash
+# 1. edit apps/MiniApp/src/example.tsx (change the text)
+
+# 2. redeploy the remote — note the new edge URL it prints
+cd apps/MiniApp
+npx react-native bundle-mf-remote --platform ios --dev false
+
+# 3. point the host at the new URL and reload
+cd ../HostApp
+MINI_APP_URL="MiniApp@<NEW_URL>/mf-manifest.json" \
+  npx react-native start --port 8081 --reset-cache
+# reload the app on the simulator → the card shows the new version
+```
+
+For hands-off "always latest" resolution, create an **environment** for MiniApp
+in the Zephyr dashboard and use `"zephyr:dependencies": { "MiniApp": "MiniApp@*" }`
+in `apps/HostApp/package.json` (see `docs/feedback.md`, finding #7).
+
 ## Notes
 
 - Uses only Zephyr's **default Cloud integration** — no custom deployment target.
