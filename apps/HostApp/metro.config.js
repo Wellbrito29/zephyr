@@ -3,10 +3,14 @@ const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 const { withZephyr } = require('zephyr-metro-plugin');
 const { withModuleFederation } = require('@module-federation/metro');
 
-// In local dev the host loads MiniApp from its Metro server on this port.
-// In production Zephyr resolves the remote to the deployed version (see
-// `zephyr:dependencies` in package.json).
-const miniAppPort = process.env.MINI_APP_PORT ?? '8082';
+// The host resolves the MiniApp remote from Zephyr Cloud by default (true OTA:
+// the bundle is fetched from Zephyr's edge at runtime). Set MINI_APP_URL to a
+// local Metro server (e.g. MiniApp@http://localhost:8082/mf-manifest.json) for
+// offline development.
+const zephyrMiniAppManifest =
+  'https://well334-1-miniapp-zephyr-wellbrito29-a960f67b8-ze.zephyrcloud.app/mf-manifest.json';
+const miniAppRemote =
+  process.env.MINI_APP_URL ?? `MiniApp@${zephyrMiniAppManifest}`;
 
 const config = {
   resolver: { useWatchman: false },
@@ -16,7 +20,7 @@ const getConfig = async () => {
   const zephyrConfig = await withZephyr()({
     name: 'HostApp',
     remotes: {
-      MiniApp: `MiniApp@http://localhost:${miniAppPort}/mf-manifest.json`,
+      MiniApp: miniAppRemote,
     },
     shared: {
       react: {
