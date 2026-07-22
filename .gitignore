@@ -1,0 +1,30 @@
+# dependencies
+**/node_modules/
+
+# native build artifacts
+**/ios/Pods/
+**/ios/build/
+**/android/.gradle/
+**/android/app/build/
+**/android/build/
+**/*.xcworkspace/xcuserdata/
+**/DerivedData/
+
+# metro / module federation
+**/.metro-health-check*
+**/mf-manifest.json
+**/dist/
+**/build-output/
+
+# zephyr
+**/.zephyr/
+
+# logs / misc
+**/*.log
+.DS_Store
+**/.watchman-cookie*
+*.tsbuildinfo
+
+# env
+.env
+.env.*
