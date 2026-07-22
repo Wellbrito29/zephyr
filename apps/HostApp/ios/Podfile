@@ -31,5 +31,17 @@ target 'HostApp' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Workaround: RN 0.80 bundles fmt 11.0.2, whose format.cc / basic_format_string
+    # use `consteval` under C++20. The newer clang in recent Xcode rejects it with
+    # "call to consteval function ... is not a constant expression" when glog/fmt
+    # are compiled. fmt only enables consteval when __cplusplus >= 201709L, so
+    # compiling the glog + fmt targets as C++17 disables it. Neither needs C++20.
+    installer.pods_project.targets.each do |target|
+      next unless ['glog', 'fmt'].include?(target.name)
+      target.build_configurations.each do |config|
+        config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+      end
+    end
   end
 end
